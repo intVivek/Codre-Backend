@@ -19,28 +19,44 @@ const io = require('socket.io')(server,{
   }
 });
 
+var users = {};
+
 io.on('connection', async (socket) => {
+  var id=socket.id;
   var doc;
-  const room=socket.handshake.query.search;
+  var room=socket.handshake.query.search;
   var clients = io.sockets.adapter.rooms.get(room);
+
+  users[socket.id] = {} 
+  users[socket.id].user = socket.user = socket.id;
+  users[socket.id].color = socket.color = '#FFCBA4';
+  socket.emit('userdata', Object.values(users));
+  socket.broadcast.emit('connected', {user : socket.id, color : '#FFCBA4'});
   if(clients){
-    const [client] = clients;
-    console.log(socket.id,client);
-    io.to(client).emit('giveData','giveData');
-    socket.on('sendData',(data)=>{
-      console.log("data"+data);
-      io.to(socket.id).emit('loadDoc', data);
-    })
+    const clientsArray = Array.from(clients);
+    var client = clientsArray[Math.floor(Math.random()*clientsArray.length)];
+    io.to(client).emit('giveData',id);
   }
-  doc = await findOrCreateDocument(room);
+  else {
+    doc = await findOrCreateDocument(room);
+    socket.emit('loadDoc', doc);
+  }
   socket.join(room);
-  socket.emit('loadDoc', doc);
   socket.on('msg', (data)=>{
     socket.to(room).emit('newmsg', data);
- })
- socket.on("saveDoc", async data => {
-  await Document.findByIdAndUpdate(room, { data })
+  })
+  socket.on("saveDoc", async data => {
+    await Document.findByIdAndUpdate(room, { data })
   });
+
+  socket.on('sendData', (data)=>{
+    io.to(data.id).emit('loadDoc', data);
+  })
+  socket.on('selection', function (data) {      
+    data.color = socket.color
+    data.user = socket.user
+    socket.broadcast.emit('selection', data) ;
+  }) 
 });
 
 async function findOrCreateDocument(id) {
