@@ -19,44 +19,65 @@ const io = require('socket.io')(server,{
   }
 });
 
-var users = {};
+const rooms = new Map();
 
 io.on('connection', async (socket) => {
   var id=socket.id;
   var doc;
   var room=socket.handshake.query.search;
-  var clients = io.sockets.adapter.rooms.get(room);
+  var user = { id:socket.id,color:'#FFCBA4'};
 
-  users[socket.id] = {} 
-  users[socket.id].user = socket.user = socket.id;
-  users[socket.id].color = socket.color = '#FFCBA4';
-  socket.emit('userdata', Object.values(users));
-  socket.broadcast.emit('connected', {user : socket.id, color : '#FFCBA4'});
+  if(rooms.has(room)){
+    var users = rooms.get(room);
+    users[socket.id] = user;
+    rooms.set(room,users);
+  }
+  else{
+    var users ={};
+    users[socket.id] = user;
+    rooms.set(room,users);
+  }
+
+  var clients = io.sockets.adapter.rooms.get(room);
   if(clients){
     const clientsArray = Array.from(clients);
     var client = clientsArray[Math.floor(Math.random()*clientsArray.length)];
-    io.to(client).emit('giveData',id);
+    io.to(client).emit('clientRequestedData',id);
   }
   else {
     doc = await findOrCreateDocument(room);
-    socket.emit('loadDoc', doc);
+    socket.emit('loadDoc', doc,Object.values(users));
   }
+
   socket.join(room);
-  socket.on('msg', (data)=>{
-    socket.to(room).emit('newmsg', data);
+
+  socket.to(room).emit('connected', user);
+
+  socket.emit('');
+
+  socket.emit('userdata', Object.values(rooms.get(room)));
+
+  socket.on('clientRequestedData', (data)=>{
+    io.to(data.id).emit('loadDoc', data);
   })
-  socket.on("saveDoc", async data => {
+
+  socket.on('selection', function (data) {      
+    data.color = '#FFCBA4'
+    data.user = socket.id
+    socket.to(room).emit('selection', data) ;
+  }) 
+
+  socket.on('textChange', (data)=>{
+    socket.to(room).emit('textChange', data);
+  })
+
+  socket.on("clientLeft", async (id,room,data) => {
+    var users = rooms.get(room);
+    delete users[id];
+    rooms.set(room,users);
     await Document.findByIdAndUpdate(room, { data })
   });
 
-  socket.on('sendData', (data)=>{
-    io.to(data.id).emit('loadDoc', data);
-  })
-  socket.on('selection', function (data) {      
-    data.color = socket.color
-    data.user = socket.user
-    socket.broadcast.emit('selection', data) ;
-  }) 
 });
 
 async function findOrCreateDocument(id) {
