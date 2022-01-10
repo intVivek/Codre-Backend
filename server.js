@@ -61,7 +61,7 @@ io.on('connection', async (socket) => {
     io.to(data.id).emit('loadDoc', data);
   })
 
-  socket.on('selection', function (data) {      
+  socket.on('selection', (data) => {      
     data.color = '#FFCBA4'
     data.user = socket.id
     socket.to(room).emit('selection', data) ;
@@ -72,15 +72,16 @@ io.on('connection', async (socket) => {
   })
 
   socket.on("clientLeft", async (id,room,data) => {
+    console.log(rooms);
     var users = rooms.get(room);
     delete users[id];
     rooms.set(room,users);
+    socket.to(room).emit("exit", id);
     await Document.findByIdAndUpdate(room, { data })
   });
-
 });
 
-async function findOrCreateDocument(id) {
+const findOrCreateDocument= async (id) => {
   if (id == null) return
   const document = await Document.findById(id)
   if (document) return document
