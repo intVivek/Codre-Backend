@@ -2,8 +2,11 @@ const app = require('express')();
 const server = require('http').createServer(app);
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Document = require("./MongoDB.js")
+const Document = require("./MongoDB.js");
+const {String2HexCodeColor} = require('string-to-hex-code-color');
 
+
+const string2HexCodeColor = new String2HexCodeColor();
 const uri = process.env.MONGODB_URI;
 mongoose.connect(uri,  
   {
@@ -24,8 +27,16 @@ const rooms = new Map();
 io.on('connection', async (socket) => {
   var id=socket.id;
   var doc;
-  var room=socket.handshake.query.search;
-  var user = { id:socket.id,color:'#FFCBA4'};
+  var room=socket.handshake.query.room;
+  var name=socket.handshake.query.name;
+  var color = string2HexCodeColor.stringToColor(socket.id,0.5);
+
+  if(!name||name===null||name===''||name==='null'){
+    name='GUEST';
+  }
+  
+  console.log(room,name);
+  var user = { id:socket.id,name,color};
 
   if(rooms.has(room)){
     var users = rooms.get(room);
@@ -61,9 +72,9 @@ io.on('connection', async (socket) => {
     io.to(data.id).emit('loadDoc', data);
   })
 
-  socket.on('selection', (data) => {      
-    data.color = '#FFCBA4'
-    data.user = socket.id
+  socket.on('selection', (data) => {
+    data.id = socket.id;
+    data.color=color;
     socket.to(room).emit('selection', data) ;
   }) 
 
