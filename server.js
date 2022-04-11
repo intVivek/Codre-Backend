@@ -73,13 +73,13 @@ io.on('connection', async (socket) => {
     user='GUEST';
   }
 
-  if(room?.length===0){
+  if(room==='createroom'){
     room=uuid();
     await Document.create({ _id: room, data: '' });
   }
   user['socketId'] = socket.id;
   user['color'] =  color;
-
+  user['room'] = room;
   console.log(user);
   if(rooms.has(room)){
     var users = rooms.get(room);
@@ -97,11 +97,9 @@ io.on('connection', async (socket) => {
     const clientsArray = Array.from(clients);
     var client = clientsArray[Math.floor(Math.random()*clientsArray.length)];
     io.to(client).emit('clientRequestedData',id);
-    console.log(client);
   }
   else {
     doc = await Document.findById(room);
-    console.log(doc);
     socket.emit('loadDoc', doc,Object.values(users));
   }
 
@@ -109,7 +107,7 @@ io.on('connection', async (socket) => {
 
   socket.to(room).emit('connected', user);
 
-  socket.emit('');
+  socket.emit('personalData', user);
 
   socket.emit('userdata', Object.values(rooms.get(room)));
 
@@ -118,7 +116,7 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('selection', (data) => {
-    data.id = socket.id;
+    data.socketId = socket.id;
     data.color=color;
     socket.to(room).emit('selection', data) ;
   }) 
@@ -129,6 +127,7 @@ io.on('connection', async (socket) => {
 
   socket.on("clientLeft", async (id,room,data) => {
     var users = rooms.get(room);
+    console.log('clientLeft',users,id,room,data);
     delete users[id];
     rooms.set(room,users);
     socket.to(room).emit("exit", id);
