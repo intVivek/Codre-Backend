@@ -7,9 +7,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const Document = require("./Model/MongoDB.js");
 const passport =require("passport");
-const checkRoom = require('./Routers/checkRoom.js')
+const createRoom = require('./Routers/createRoom.js')
 const initializePassport = require('./passport');
-const { v4: uuid } = require('uuid');
 const {String2HexCodeColor} = require('string-to-hex-code-color');
 const io = require('socket.io')(server,{
   cors:
@@ -62,21 +61,19 @@ const rooms = new Map();
 const string2HexCodeColor = new String2HexCodeColor();
 
 io.on('connection', async (socket) => {
-  // console.log(socket?.request?.session?.passport?.user);
   var id=socket.id;
   var doc;
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
   var color = string2HexCodeColor.stringToColor(socket.id,0.5);
 
-  if(!user||user===null||user===''||user==='null'){
-    user='GUEST';
+
+  var findRoom = await Document.findById(room);
+  if(!user||!room||!findRoom){
+    console.log("failed");
+    return socket.emit('failed');
   }
 
-  if(room==='createroom'){
-    room=uuid();
-    await Document.create({ _id: room, data: '' });
-  }
   user['socketId'] = socket.id;
   user['color'] =  color;
   user['room'] = room;
@@ -116,7 +113,7 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('selection', (data) => {
-    data.socketId = socket.id;
+    data.socketId = socket?.id;
     data.color=color;
     socket.to(room).emit('selection', data) ;
   }) 
@@ -141,7 +138,7 @@ app.post('/home',(req,res)=>{
   else return res.json({status: 0, message:"Unauthorized"});
 })
 
-app.use(checkRoom);
+app.use(createRoom);
 app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
