@@ -5,8 +5,20 @@ const documentSchema = new Schema({
     type: String,
     required: true,
   },
-  userId: {
+  user: {
+    type: Object,
+    required: true,
+  },
+  roomName: {
     type: String,
+    required: true,
+  },
+  desc: {
+    type: String,
+    required: false,
+  },
+  invite: {
+    type: Boolean,
     required: true,
   },
   data: Object,

@@ -7,7 +7,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const Document = require("./Model/MongoDB.js");
 const passport =require("passport");
-const createRoom = require('./Routers/createRoom.js')
+const createRoom = require('./Routers/createRoom.js');
+const fetchRoomData = require('./Routers/fetchHome.js');
 const initializePassport = require('./passport');
 const {String2HexCodeColor} = require('string-to-hex-code-color');
 const io = require('socket.io')(server,{
@@ -132,13 +133,8 @@ io.on('connection', async (socket) => {
   });
 });
 
-
-app.post('/home',(req,res)=>{
-  if(req.isAuthenticated()) return res.json({status: 1, user: req.user});
-  else return res.json({status: 0, message:"Unauthorized"});
-})
-
 app.use(createRoom);
+app.use(fetchRoomData);
 app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
