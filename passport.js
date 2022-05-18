@@ -1,8 +1,10 @@
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport =require("passport");
-const User = require("./Model/User.js");
+const User = require("./Model/Models.js");
+const {String2HexCodeColor} = require('string-to-hex-code-color');
 
 function initialize() {
+  const string2HexCodeColor = new String2HexCodeColor();
 
   passport.use(new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -11,6 +13,8 @@ function initialize() {
     },
     async (accessToken, refreshToken, profile, cb) => {
       var user, error;
+      var color = string2HexCodeColor.stringToColor(profile.id,0.5);
+
       try{
         user = await User.findOne({ googleId: profile.id});
         if (!user)
@@ -19,6 +23,7 @@ function initialize() {
           name:profile.name,
           emails: profile.emails,
           photos: profile.photos,
+          color: color,
           provider: profile.provider });
       }
       catch(error){

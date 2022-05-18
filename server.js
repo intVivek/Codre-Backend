@@ -1,16 +1,15 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const User = require("./Model/User.js");
+const User = require("./Model/Models.js");
 const app = express();
 const server = require('http').createServer(app);
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Document = require("./Model/MongoDB.js");
+const Document = require("./Model/Models.js");
 const passport =require("passport");
 const createRoom = require('./Routers/createRoom.js');
 const fetchRoomData = require('./Routers/fetchHome.js');
 const initializePassport = require('./passport');
-const {String2HexCodeColor} = require('string-to-hex-code-color');
 const io = require('socket.io')(server,{
   cors:
   {
@@ -59,14 +58,12 @@ app.use((req, res, next) => {
 });
 
 const rooms = new Map();
-const string2HexCodeColor = new String2HexCodeColor();
 
 io.on('connection', async (socket) => {
   var id=socket.id;
   var doc;
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
-  var color = string2HexCodeColor.stringToColor(socket.id,0.5);
 
 
   var findRoom = await Document.findById(room);
@@ -76,7 +73,6 @@ io.on('connection', async (socket) => {
   }
 
   user['socketId'] = socket.id;
-  user['color'] =  color;
   user['room'] = room;
   console.log(user);
   if(rooms.has(room)){
@@ -101,7 +97,9 @@ io.on('connection', async (socket) => {
     socket.emit('loadDoc', doc,Object.values(users));
   }
 
-  socket.join(room);
+  socket.join(()=>{
+
+  });
 
   socket.to(room).emit('connected', user);
 
@@ -115,7 +113,7 @@ io.on('connection', async (socket) => {
 
   socket.on('selection', (data) => {
     data.socketId = socket?.id;
-    data.color=color;
+    // data.color=color;
     socket.to(room).emit('selection', data) ;
   }) 
 

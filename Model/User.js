@@ -5,6 +5,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    color: {
+      type: String,
+      required: true,
+    },
     name: {
       type: Object,
       required: true,
@@ -12,7 +16,15 @@ const userSchema = mongoose.Schema({
     emails: {
       type: Array,
       required: true,
-    },
+    },    
+    recentlyJoined: {
+      type: Array,
+      required: false,
+    },    
+    created: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Document"
+    }],
     photos: {
       type: Array,
       required: true,
