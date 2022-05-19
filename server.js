@@ -1,11 +1,11 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const User = require("./Model/Models.js");
+const User = require("./Model/User.js");
 const app = express();
 const server = require('http').createServer(app);
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Document = require("./Model/Models.js");
+const Document = require("./Model/Document.js");
 const passport =require("passport");
 const createRoom = require('./Routers/createRoom.js');
 const fetchRoomData = require('./Routers/fetchHome.js');
@@ -97,9 +97,9 @@ io.on('connection', async (socket) => {
     socket.emit('loadDoc', doc,Object.values(users));
   }
 
-  socket.join(()=>{
-
-  });
+  const user1 = await User.findOneAndUpdate({_id: user._id}, { $push: { recentlyJoined: room } });
+  console.log(102, user1);
+  socket.join(room);
 
   socket.to(room).emit('connected', user);
 

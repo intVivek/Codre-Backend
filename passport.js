@@ -1,6 +1,6 @@
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport =require("passport");
-const User = require("./Model/Models.js");
+const User = require("./Model/User.js");
 const {String2HexCodeColor} = require('string-to-hex-code-color');
 
 function initialize() {
@@ -16,10 +16,10 @@ function initialize() {
       var color = string2HexCodeColor.stringToColor(profile.id,0.5);
 
       try{
-        user = await User.findOne({ googleId: profile.id});
+        user = await User.findOne({ _id: profile.id});
         if (!user)
           user = await User.create({ 
-          googleId: profile.id,
+          _id: profile.id,
           name:profile.name,
           emails: profile.emails,
           photos: profile.photos,

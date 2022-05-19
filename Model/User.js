@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
+const { Schema, model } = require("mongoose");
 
-const userSchema = mongoose.Schema({
-  googleId: {
+const userSchema = new Schema({
+  _id: {
         type: String,
         required: true,
     },
@@ -17,12 +17,12 @@ const userSchema = mongoose.Schema({
       type: Array,
       required: true,
     },    
-    recentlyJoined: {
-      type: Array,
-      required: false,
-    },    
     created: [{
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
+      ref: "Document"
+    }],   
+    recentlyJoined: [{
+      type: String,
       ref: "Document"
     }],
     photos: {
@@ -33,6 +33,6 @@ const userSchema = mongoose.Schema({
       type: String,
       required: true,
   }
-})
+},{ timestamps: true });
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = model('User', userSchema)
