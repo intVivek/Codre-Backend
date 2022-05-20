@@ -8,7 +8,8 @@ require("dotenv").config();
 const Document = require("./Model/Document.js");
 const passport =require("passport");
 const createRoom = require('./Routers/createRoom.js');
-const fetchRoomData = require('./Routers/fetchHome.js');
+const fetchHome = require('./Routers/fetchHome.js');
+const checkRoom = require('./Routers/checkRoom.js');
 const initializePassport = require('./passport');
 const io = require('socket.io')(server,{
   cors:
@@ -132,7 +133,8 @@ io.on('connection', async (socket) => {
 });
 
 app.use(createRoom);
-app.use(fetchRoomData);
+app.use(checkRoom);
+app.use(fetchHome);
 app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
