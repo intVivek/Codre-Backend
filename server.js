@@ -14,7 +14,7 @@ const initializePassport = require('./passport');
 const io = require('socket.io')(server,{
   cors:
   {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     allowedHeaders: ["*"],
     credentials: true
   }
@@ -52,7 +52,7 @@ mongoose.connect(process.env.MONGODB_URI,
 .catch(err => console.error("Error connecting to mongo", err));
 
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', "http://localhost:3000");
+	res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
 	res.setHeader('Access-Control-Allow-Headers', 'content-type,Authorization');
 	res.setHeader('Access-Control-Allow-Credentials', true);
 	next();
@@ -139,13 +139,13 @@ app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'e
 
 app.get('/auth/google/callback', (req, res, next) => {
 	passport.authenticate('google', (error, user, authInfo) => {
-		if (!user) res.redirect('http://localhost:3000/error');
+		if (!user) res.redirect(`${process.env.CLIENT_URL}/error`);
 		req.logIn(user, (err) => {
-			res.redirect('http://localhost:3000/home');
+			res.redirect(`${process.env.CLIENT_URL}/home`);
 		});
 	})(req, res, next)
 });
 
-server.listen(5000,()=>{
-  console.log('Server Started at port 5000');
+server.listen(process.env.PORT,()=>{
+  console.log(`Server Started at port ${process.env.PORT}`);
 });
