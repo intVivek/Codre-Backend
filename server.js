@@ -11,7 +11,7 @@ const createRoom = require('./Routers/createRoom.js');
 const fetchHome = require('./Routers/fetchHome.js');
 const checkRoom = require('./Routers/checkRoom.js');
 const initializePassport = require('./passport');
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo');
 const io = require('socket.io')(server,{
   cors:
   {
