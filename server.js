@@ -11,6 +11,7 @@ const createRoom = require('./Routers/createRoom.js');
 const fetchHome = require('./Routers/fetchHome.js');
 const checkRoom = require('./Routers/checkRoom.js');
 const initializePassport = require('./passport');
+const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const io = require('socket.io')(server,{
   cors:
@@ -21,28 +22,26 @@ const io = require('socket.io')(server,{
   }
 });
 
-const session = require("express-session")({
+let store = new MongoStore({
+  mongoUrl: process.env.MONGODB_URI,
+  collection: "sessions"
+});
+
+app.use(express.urlencoded({ extended : true }));
+app.use(express.json());
+app.use(cookieParser("my-secret"));
+app.use(session({
   name: 'coder',
   secret: "my-secret",
   resave: false,
   saveUninitialized: false,
-  store: new MongoStore({ 
-    mongoUrl: process.env.MONGODB_URI,
-    ttl: 14 * 24 * 60 * 60,
-    autoRemove: 'native'
-  }),
+  store: store,
   cookie: {
     secure: false,
     httpOnly: true,
     maxAge: 1000 * 3600 * 24 * 15
   }
-})
-
-
-app.use(express.urlencoded({ extended : true }));
-app.use(express.json());
-app.use(cookieParser("my-secret"));
-app.use(session);
+}));
 
 io.use((socket, next) => session(socket.request, {}, next));
 
