@@ -141,7 +141,7 @@ io.on('connection', async (socket) => {
 app.use(createRoom);
 app.use(checkRoom);
 app.use(fetchHome);
-app.get('auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
+app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
 	passport.authenticate('google', (error, user, authInfo) => {
