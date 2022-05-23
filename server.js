@@ -141,7 +141,7 @@ io.on('connection', async (socket) => {
 app.use(createRoom);
 app.use(checkRoom);
 app.use(fetchHome);
-app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
+app.get('auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
 	passport.authenticate('google', (error, user, authInfo) => {
@@ -152,6 +152,6 @@ app.get('/auth/google/callback', (req, res, next) => {
 	})(req, res, next)
 });
 
-server.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT || 5000,()=>{
   console.log(`Server Started at port ${process.env.PORT}`);
 });
