@@ -11,6 +11,7 @@ const createRoom = require('./Routers/createRoom.js');
 const fetchHome = require('./Routers/fetchHome.js');
 const checkRoom = require('./Routers/checkRoom.js');
 const initializePassport = require('./passport');
+const MongoStore = require('connect-mongo')(session);
 const io = require('socket.io')(server,{
   cors:
   {
@@ -24,6 +25,7 @@ const session = require("express-session")({
   secret: "my-secret",
   resave: false,
   saveUninitialized: false,
+  store: new MongoStore({ mongoUrl: process.env.MONGODB_URI}),
   cookie: {
     secure: false,
     httpOnly: true,
