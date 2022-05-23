@@ -25,7 +25,11 @@ const session = require("express-session")({
   secret: "my-secret",
   resave: false,
   saveUninitialized: false,
-  store: new MongoStore({ mongoUrl: process.env.MONGODB_URI}),
+  store: new MongoStore({ 
+    url: process.env.MONGODB_URI,
+    ttl: 14 * 24 * 60 * 60,
+    autoRemove: 'native'
+  }),
   cookie: {
     secure: false,
     httpOnly: true,
