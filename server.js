@@ -37,7 +37,6 @@ const session = expressSession({
 	secret: process.env.sessions_key,
 	resave: true,
 	store: store,
-  proxy: true,
 	saveUninitialized: false,
 	cookie: {
 		maxAge : 1000 * 60 * 60 * 48,
