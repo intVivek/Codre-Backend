@@ -33,6 +33,7 @@ app.use(cookieParser("my-secret"));
 
 app.set("trust proxy", 1);
 const session = expressSession({
+  name: "session",
 	secret: process.env.sessions_key,
 	resave: false,
 	store: store,
