@@ -31,20 +31,20 @@ app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
 app.use(cookieParser("my-secret"));
 
+app.set("trust proxy", 1);
 const session = expressSession({
   name: "session",
 	secret: process.env.sessions_key,
-	resave: false,
+	resave: true,
 	store: store,
   proxy: true,
-	saveUninitialized: process.env.ENV==='dev'?false:true,
+	saveUninitialized: false,
 	cookie: {
 		maxAge : 1000 * 60 * 60 * 48,
-		sameSite: 'none',
+		sameSite: process.env.ENV==='dev'?'lax':'none',
 		secure: process.env.ENV==='dev'?false:true
 	}
 });
-app.enable('trust proxy');
 app.use(session);
 io.use((socket, next) => session(socket.request, {}, next));
 
