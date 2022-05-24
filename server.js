@@ -31,7 +31,6 @@ app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
 app.use(cookieParser("my-secret"));
 
-app.set("trust proxy", 1);
 const session = expressSession({
   name: "session",
 	secret: process.env.sessions_key,
@@ -41,7 +40,7 @@ const session = expressSession({
 	saveUninitialized: process.env.ENV==='dev'?false:true,
 	cookie: {
 		maxAge : 86400000,
-		sameSite: 'none',
+		sameSite: 'strict',
     httpOnly: true, 
 		secure: process.env.ENV==='dev'?false:true
 	}
