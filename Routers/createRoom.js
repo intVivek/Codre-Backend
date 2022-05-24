@@ -10,7 +10,7 @@ router.post('/createRoom', async (req, res) => {
     var room;
     try {
         room = uuid().slice(10,22).toUpperCase();
-        await Document.create({_id: room, user: user._id, data: '', roomName, desc, invite});
+        await Document.create({_id: room, user: user._id, data: '', roomName, desc, invite, popular: false});
         await User.findOneAndUpdate({_id: user._id}, { $push: { created: room } });
         res.json({status: 1, room});
     } catch (err) {

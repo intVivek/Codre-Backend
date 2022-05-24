@@ -21,6 +21,10 @@ const documentSchema = new Schema({
     type: Boolean,
     required: true,
   },
+  popular: {
+    type: Boolean,
+    required: false,
+  },
   
   data: Object,
 },{ timestamps: true });

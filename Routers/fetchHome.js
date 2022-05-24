@@ -16,8 +16,9 @@ router.post('/home', async (req,res)=>{
             options: { sort: { 'updatedAt': -1 } }
         }
     ]);
-    console.log('10',home);
-    res.json({status: 1, home});
+    var popular = await Document.find({"popular": true}).populate('user');
+    console.log('10',home, popular);
+    res.json({status: 1, home, popular});
 });
 
 module.exports = router
