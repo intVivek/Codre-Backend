@@ -35,7 +35,7 @@ app.use(session({
   name: 'coder',
   secret: "my-secret",
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   store: store,
   cookie: {
     secure: true,
@@ -43,7 +43,7 @@ app.use(session({
     maxAge: 1000 * 3600 * 24 * 15
   }
 }));
-
+// app.enable('trust proxy');
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
