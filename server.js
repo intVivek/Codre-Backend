@@ -61,7 +61,7 @@ mongoose.connect(process.env.MONGODB_URI,
 
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
-	res.setHeader('Access-Control-Allow-Headers', 'content-type,Authorization');
+	res.setHeader('Access-Control-Allow-Headers', 'content-type');
 	res.setHeader('Access-Control-Allow-Credentials', true);
 	next();
 });
