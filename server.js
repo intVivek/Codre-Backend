@@ -30,20 +30,20 @@ let store = new MongoStore({
 app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
 app.use(cookieParser("my-secret"));
+
 app.set("trust proxy", 1);
 app.use(session({
-  name: 'coder',
-  secret: "my-secret",
-  resave: false,
-  saveUninitialized: true,
-  store: store,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    maxAge: 1000 * 3600 * 24 * 15
-  }
+	secret: process.env.sessions_key,
+	resave: false,
+	store: store,
+	saveUninitialized: true,
+	cookie: {
+		maxAge : 86400000,
+		sameSite: 'none', 
+		secure: true
+	}
 }));
-app.enable('trust proxy');
+
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
