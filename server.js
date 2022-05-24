@@ -47,6 +47,7 @@ const session = expressSession({
 });
 
 app.use(session);
+app.enable('trust proxy');
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
