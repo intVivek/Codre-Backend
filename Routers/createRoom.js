@@ -5,7 +5,6 @@ const User = require("../Model/User.js");
 const { v4: uuid } = require('uuid');
 
 router.post('/createRoom', async (req, res) => {
-    console.log('8',req.body);
     const {user, roomName, desc, invite} = req.body
     var room;
     try {

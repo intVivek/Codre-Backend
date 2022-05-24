@@ -28,7 +28,6 @@ function initialize() {
       }
       catch(error){
         error = error;
-        console.log(error);
       }
       return cb(error, user);
     }

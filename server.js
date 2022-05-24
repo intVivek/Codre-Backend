@@ -74,17 +74,14 @@ io.on('connection', async (socket) => {
   var doc;
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
-  console.log(socket);
 
   var findRoom = await Document.findById(room);
   if(!user||!room||!findRoom){
-    console.log("failed");
     return socket.emit('failed');
   }
 
   user['socketId'] = socket.id;
   user['room'] = room;
-  console.log(user);
   if(rooms.has(room)){
     var users = rooms.get(room);
     users[socket.id] = user;
@@ -108,7 +105,6 @@ io.on('connection', async (socket) => {
   }
 
   const user1 = await User.findOneAndUpdate({_id: user._id}, { $push: { recentlyJoined: room } });
-  console.log(102, user1);
   socket.join(room);
 
   socket.to(room).emit('connected', user);
@@ -133,7 +129,6 @@ io.on('connection', async (socket) => {
 
   socket.on("clientLeft", async (id,room,data) => {
     var users = rooms.get(room);
-    console.log('clientLeft',users,id,room,data);
     delete users[id];
     rooms.set(room,users);
     socket.to(room).emit("exit", id);

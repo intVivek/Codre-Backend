@@ -17,7 +17,6 @@ router.post('/home', async (req,res)=>{
         }
     ]);
     var popular = await Document.find({"popular": true}).populate('user');
-    console.log('10',home, popular);
     res.json({status: 1, home, popular});
 });
 
