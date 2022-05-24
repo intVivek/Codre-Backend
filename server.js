@@ -36,13 +36,27 @@ app.use(session({
 	secret: process.env.sessions_key,
 	resave: false,
 	store: store,
-	saveUninitialized: true,
+	saveUninitialized: process.env.ENV==='dev'?false:true,
 	cookie: {
 		maxAge : 86400000,
-		sameSite: 'none', 
-		secure: true
+		sameSite: 'strict',
+    httpOnly: true, 
+		secure: process.env.ENV==='dev'?false:true
 	}
 }));
+
+// app.use(session({
+//   name: 'coder',
+//   secret: process.env.sessions_key,
+//   resave: false,
+//   saveUninitialized: false,
+//   store: store,
+//   cookie: {
+//     secure: false,
+//     httpOnly: true,
+//     maxAge: 1000 * 3600 * 24 * 15
+//   }
+// }));
 
 io.use((socket, next) => session(socket.request, {}, next));
 
