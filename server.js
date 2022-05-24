@@ -40,7 +40,7 @@ const session = expressSession({
 	saveUninitialized: process.env.ENV==='dev'?false:true,
 	cookie: {
 		maxAge : 86400000,
-		sameSite: 'strict',
+		sameSite: 'none',
     httpOnly: true, 
 		secure: process.env.ENV==='dev'?false:true
 	}
