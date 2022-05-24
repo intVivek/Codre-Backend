@@ -30,6 +30,7 @@ let store = new MongoStore({
 app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
 app.use(cookieParser("my-secret"));
+app.set("trust proxy", 1);
 app.use(session({
   name: 'coder',
   secret: "my-secret",
