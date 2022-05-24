@@ -39,15 +39,13 @@ const session = expressSession({
   proxy: true,
 	saveUninitialized: process.env.ENV==='dev'?false:true,
 	cookie: {
-		maxAge : 86400000,
-		sameSite: 'strict',
-    httpOnly: true, 
+		maxAge : 1000 * 60 * 60 * 48,
+		sameSite: 'none',
 		secure: process.env.ENV==='dev'?false:true
 	}
 });
-
-app.use(session);
 app.enable('trust proxy');
+app.use(session);
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
