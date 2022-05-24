@@ -11,7 +11,7 @@ const createRoom = require('./Routers/createRoom.js');
 const fetchHome = require('./Routers/fetchHome.js');
 const checkRoom = require('./Routers/checkRoom.js');
 const initializePassport = require('./passport');
-const session = require("express-session");
+const expressSession = require("express-session");
 const MongoStore = require('connect-mongo');
 const io = require('socket.io')(server,{
   cors:
@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(cookieParser("my-secret"));
 
 app.set("trust proxy", 1);
-app.use(session({
+const session = expressSession({
 	secret: process.env.sessions_key,
 	resave: false,
 	store: store,
@@ -43,8 +43,9 @@ app.use(session({
     httpOnly: true, 
 		secure: process.env.ENV==='dev'?false:true
 	}
-}));
+});
 
+app.use(session);
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
@@ -73,7 +74,7 @@ io.on('connection', async (socket) => {
   var doc;
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
-
+  console.log(socket);
 
   var findRoom = await Document.findById(room);
   if(!user||!room||!findRoom){
