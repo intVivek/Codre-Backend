@@ -43,7 +43,7 @@ app.use(session({
     maxAge: 1000 * 3600 * 24 * 15
   }
 }));
-// app.enable('trust proxy');
+app.enable('trust proxy');
 io.use((socket, next) => session(socket.request, {}, next));
 
 app.use(passport.initialize())
