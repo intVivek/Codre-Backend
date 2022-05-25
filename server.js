@@ -29,19 +29,26 @@ let store = new MongoStore({
 
 app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
-app.use(cookieParser("my-secret"));
+
+app.use((req, res, next) => {
+	res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
+	res.setHeader('Access-Control-Allow-Headers', 'content-type,Authorization');
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	next();
+});
 
 app.set("trust proxy", 1);
 const session = expressSession({
-  name: "session",
 	secret: process.env.sessions_key,
-	resave: true,
+	resave: false,
 	store: store,
-	saveUninitialized: false,
+	saveUninitialized: true,
 	cookie: {
 		maxAge : 1000 * 60 * 60 * 48,
-		sameSite: process.env.ENV==='dev'?'lax':'none',
-		secure: process.env.ENV==='dev'?false:true
+		// sameSite: process.env.ENV==='dev'?'lax':'none',
+		// secure: process.env.ENV==='dev'?false:true
+    sameSite: 'none', 
+		secure: true
 	}
 });
 app.use(session);
@@ -58,13 +65,6 @@ mongoose.connect(process.env.MONGODB_URI,
   })
 .then(() => console.log('DATABASE CONNECTED'))
 .catch(err => console.error("Error connecting to mongo", err));
-
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL);
-	res.setHeader('Access-Control-Allow-Headers', 'content-type,Authorization');
-	res.setHeader('Access-Control-Allow-Credentials', true);
-	next();
-});
 
 const rooms = new Map();
 
