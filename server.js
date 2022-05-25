@@ -117,7 +117,7 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('selection', (data) => {
-    data.socketId = socket?.id;
+    if(data)data.socketId = socket?.id;
     // data.color=color;
     socket.to(room).emit('selection', data) ;
   }) 
