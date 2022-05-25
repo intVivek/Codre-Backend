@@ -14,7 +14,6 @@ function initialize() {
     async (accessToken, refreshToken, profile, cb) => {
       var user, error;
       var color = string2HexCodeColor.stringToColor(profile.id,0.5);
-
       try{
         user = await User.findOne({ _id: profile.id});
         if (!user)

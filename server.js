@@ -27,7 +27,7 @@ let store = new MongoStore({
   collection: "sessions"
 });
 
-app.use(express.urlencoded({ extended : true }));
+app.use(express.urlencoded({ extended : false }));
 app.use(express.json());
 
 app.use((req, res, next) => {
