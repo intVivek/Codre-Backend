@@ -7,9 +7,10 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const Document = require("./Model/Document.js");
 const passport =require("passport");
-const createRoom = require('./Routers/createRoom.js');
-const fetchHome = require('./Routers/fetchHome.js');
-const checkRoom = require('./Routers/checkRoom.js');
+const {createRoom, fetchHome, checkRoom, logout} = require('./Routers');
+// const fetchHome = require('./Routers/fetchHome.js');
+// const checkRoom = require('./Routers/checkRoom.js');
+
 const initializePassport = require('./passport');
 const expressSession = require("express-session");
 const MongoStore = require('connect-mongo');
@@ -171,6 +172,8 @@ io.on('connection', async (socket) => {
 app.use(createRoom);
 app.use(checkRoom);
 app.use(fetchHome);
+app.use(logout);
+
 app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
 
 app.get('/auth/google/callback', (req, res, next) => {
