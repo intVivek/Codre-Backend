@@ -16,7 +16,6 @@ router.post('/home', async (req,res)=>{
             options: { sort: { 'updatedAt': -1 } }
         }
     ]),Document.find({"popular": true}).populate('user')]);
-    console.log(data);
     res.json({status: 1, 'home': data});
 });
 
