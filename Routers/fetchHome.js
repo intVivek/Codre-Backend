@@ -5,7 +5,7 @@ const User = require("../Model/User.js");
 
 router.post('/home', async (req,res)=>{
     if(!req.isAuthenticated()) return res.json({status: 0, message:"Unauthorized"});
-    const home = await User.findOne({"_id": req.user._id}).populate([
+    const data = await Promise.all([User.findOne({"_id": req.user._id}).populate([
         {
             path: 'created',
             options: { sort: { 'updatedAt': -1 } }
@@ -15,9 +15,9 @@ router.post('/home', async (req,res)=>{
             populate: {path: 'user'},
             options: { sort: { 'updatedAt': -1 } }
         }
-    ]);
-    var popular = await Document.find({"popular": true}).populate('user');
-    res.json({status: 1, home, popular});
+    ]),Document.find({"popular": true}).populate('user')]);
+    console.log(data);
+    res.json({status: 1, 'home': data});
 });
 
 module.exports = router
