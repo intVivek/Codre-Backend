@@ -57,33 +57,33 @@ app.set("trust proxy", 1);
 // });
 
 // prod
-const session = expressSession({
-	secret: process.env.sessions_key,
-	resave: false,
-	store: store,
-	saveUninitialized: true,
-	cookie: {
-		maxAge : 1000 * 60 * 60 * 48,
-		sameSite: process.env.ENV==='dev'?'lax':'none',
-		secure: process.env.ENV==='dev'?false:true,
-    httpOnly: true
-	}
-});
+// const session = expressSession({
+// 	secret: process.env.sessions_key,
+// 	resave: false,
+// 	store: store,
+// 	saveUninitialized: true,
+// 	cookie: {
+// 		maxAge : 1000 * 60 * 60 * 48,
+// 		sameSite: process.env.ENV==='dev'?'lax':'none',
+// 		secure: process.env.ENV==='dev'?false:true,
+//     httpOnly: true
+// 	}
+// });
 
 
 //dev
-// const session = expressSession({
-//   name: 'coder',
-//   secret: process.env.sessions_key,
-//   resave: false,
-//   saveUninitialized: false,
-//   store: store,
-//   cookie: {
-//     secure: false,
-//     httpOnly: true,
-//     maxAge: 1000 * 3600 * 24 * 15
-//   }
-// });
+const session = expressSession({
+  name: 'codre',
+  secret: process.env.sessions_key,
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 1000 * 3600 * 24 * 15
+  }
+});
 
 app.use(session);
 io.use((socket, next) => session(socket.request, {}, next));
@@ -164,8 +164,8 @@ io.on('connection', async (socket) => {
     var users = rooms.get(room);
     delete users[id];
     rooms.set(room,users);
-    socket.to(room).emit("exit", id);
     await Document.findByIdAndUpdate(room, { data })
+    socket.to(room).emit("exit", id);
   });
 });
 
