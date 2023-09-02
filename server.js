@@ -8,8 +8,6 @@ require("dotenv").config();
 const Document = require("./Model/Document.js");
 const passport =require("passport");
 const {createRoom, fetchHome, checkRoom, logout} = require('./Routers');
-// const fetchHome = require('./Routers/fetchHome.js');
-// const checkRoom = require('./Routers/checkRoom.js');
 
 const initializePassport = require('./passport');
 const expressSession = require("express-session");
@@ -49,7 +47,6 @@ const session = expressSession(process.env.ENV==='prod'?{
 		maxAge : 1000 * 60 * 60 * 48,
 		sameSite: 'none',
 		secure: true,
-    domain: process.env.CLIENT_URL
 	}
 }:{
   name: 'codre',
