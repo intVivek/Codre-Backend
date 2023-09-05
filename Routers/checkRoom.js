@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Document = require("../Model/Document.js");
+const { isAuthorized } = require('../auth.js');
 
-router.post('/checkRoom', async (req, res) => {
+router.post('/checkRoom', isAuthorized, async (req, res) => {
     const {room} = req.body;
     try {
         if(!room) return res.json({status: 0, message: 'Please enter room ID'});

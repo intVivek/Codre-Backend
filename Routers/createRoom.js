@@ -3,8 +3,9 @@ const router = express.Router();
 const Document = require("../Model/Document.js");
 const User = require("../Model/User.js");
 const { v4: uuid } = require('uuid');
+const { isAuthorized } = require('../auth.js');
 
-router.post('/createRoom', async (req, res) => {
+router.post('/createRoom', isAuthorized, async (req, res) => {
     const {user, roomName, desc, invite} = req.body
     var room;
     try {

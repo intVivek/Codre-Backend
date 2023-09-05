@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Document = require("../Model/Document.js");
 const User = require("../Model/User.js");
+const { isAuthorized } = require('../auth.js');
 
-router.post('/home', async (req,res)=>{
-    if(!req.isAuthenticated()) return res.json({status: 0, message:"Unauthorized"});
+router.post('/home', isAuthorized, async (req,res)=>{
     const data = await Promise.all([User.findOne({"_id": req.user._id}).populate([
         {
             path: 'created',
