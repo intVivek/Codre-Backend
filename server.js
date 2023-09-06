@@ -85,6 +85,11 @@ io.on('connection', async (socket) => {
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
 
+
+  if(Object.values(rooms.get(room) || {}).some(u=>u._id===user._id)) {
+    return socket.emit('roomAlreadyJoined')
+  }
+  
   var findRoom = await Document.findById(room);
   if(!user||!room||!findRoom){
     return socket.emit('failed');
