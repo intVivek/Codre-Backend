@@ -85,8 +85,7 @@ io.on('connection', async (socket) => {
   var room = socket?.handshake?.query?.room;
   var user=socket?.request?.session?.passport?.user;
 
-
-  if(Object.values(rooms.get(room) || {}).some(u=>u._id===user._id)) {
+  if(Object.values(rooms.get(room) || {}).some(u=>u?._id===user?._id)) {
     return socket.emit('roomAlreadyJoined')
   }
   
