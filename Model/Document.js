@@ -27,6 +27,6 @@ const documentSchema = new Schema({
   },
   
   data: Object,
-},{ timestamps: true });
+},{ timestamps: true, strictPopulate: false });
 
 module.exports = model("Document", documentSchema);
