@@ -4,8 +4,6 @@ const app = express();
 const server = require("http").createServer(app);
 const mongoose = require("mongoose");
 require("dotenv").config();
-const Document = require("./Model/Document.js");
-const Rooms = require("./Model/Room.js");
 const passport = require("passport");
 const {
   createRoom,
@@ -18,6 +16,7 @@ const {
 const initializePassport = require("./passport.js");
 const expressSession = require("express-session");
 const MongoStore = require("connect-mongo");
+const { onConnection } = require("./Socket/index.js");
 const io = require("socket.io")(server, {
   cors: {
     origin: process.env.CLIENT_URL,
@@ -85,84 +84,7 @@ mongoose
   .then(() => console.log("DATABASE CONNECTED"))
   .catch((err) => console.error("Error connecting to mongo", err));
 
-io.on("connection", async (socket) => {
-  var roomId = socket?.handshake?.query?.room;
-  var user = socket?.request?.session?.passport?.user;
-
-  var findRoom = await Document.findById(roomId);
-  if (!user || !roomId || !findRoom) {
-    return socket.emit("failed");
-  }
-
-  const room = await Rooms.findById(roomId);
-  const usersInRoom = room?.users || [];
-  if (!usersInRoom.some((u) => u == user?._id)) {
-    if (room) {
-      usersInRoom.push(user._id);
-      await Rooms.findOneAndUpdate({ _id: roomId }, { users: usersInRoom });
-    } else {
-      let users = [];
-      users.push(user._id);
-      Rooms.create({ _id: roomId, users });
-    }
-  }
-
-  var clients = io.sockets.adapter.rooms.get(roomId);
-  if (clients) {
-    const clientsArray = Array.from(clients);
-    var client = clientsArray[Math.floor(Math.random() * clientsArray.length)];
-    io.to(client).emit("clientRequestedData", socket.id);
-  } else {
-    const doc = await Document.findById(roomId);
-    socket.emit("loadDoc", doc.data);
-  }
-
-  await User.findOneAndUpdate(
-    { _id: user._id },
-    { $push: { recentlyJoined: roomId } }
-  );
-  socket.join(roomId);
-
-  socket.to(roomId).emit("connected", user);
-
-  socket.emit("personalData", { room: roomId, ...user });
-
-  const users =
-    (
-      await Rooms.findById(roomId).populate({
-        path: "users",
-      })
-    )?.users || [];
-
-  socket.emit("userdata", users);
-
-  socket.on("clientRequestedData", async ({ socketId, data }) => {
-    socket.emit("loadDoc", data);
-    io.to(socketId).emit("loadDoc", data);
-    await Document.findByIdAndUpdate(roomId, { data });
-  });
-
-  socket.on("selection", (data) => {
-    if (data) data._id = user._id;
-    socket.to(roomId).emit("selection", data);
-  });
-
-  socket.on("textChange", (data) => {
-    socket.to(roomId).emit("textChange", data);
-  });
-
-  socket.on("saveChangesOnClientLeft", async (data) => {
-    await Document.findByIdAndUpdate(roomId, { data });
-  });
-
-  socket.on("disconnecting", async (reason) => {
-    const users = (await Rooms.findById(roomId))?.users || [];
-    await Rooms.findByIdAndUpdate(roomId, {
-      users: users?.filter((u) => u != user._id),
-    });
-    socket.to(roomId).emit("exit", user._id);
-  });
-});
+io.on("connection", onConnection(io));
 
 app.use(checkAuthentication);
 app.use(createRoom);
