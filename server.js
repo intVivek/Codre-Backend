@@ -1,5 +1,5 @@
 const expressJS = require("express");
-const http = require("http");
+const { createServer } = require("http");
 const { socketIO } = require("./Socket");
 
 const {
@@ -9,21 +9,21 @@ const {
   session,
   router,
   socket,
-  appConfig,
+  configureApp,
 } = require("./Config");
 
 const initializeServer = () => {
   const app = expressJS();
-  const server = http.createServer(app);
+  const server = createServer(app);
   const io = socketIO(server);
   
   const appInstance = { app, server, io };
 
-  appConfig([mongoose, express, session, passport, router, socket]).call(
+  configureApp([mongoose, express, session, passport, router, socket]).call(
     appInstance
   );
 
   return appInstance;
 };
 
-module.exports = { initializeServer };
+module.exports = initializeServer;

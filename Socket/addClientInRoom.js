@@ -1,29 +1,15 @@
-const getRoomId = require("./Utils/getRoomId");
-const Rooms = require("../Model/Room");
-const User = require("../Model/User");
-const getUser = require("./Utils/getUser");
+const { getRoomId, getUser } = require("../Util");
+const { addUserToRecentlyJoined } = require("../Services/userServices");
+const { createOrAddUserInRoom } = require("../Services/roomServices");
 
 const addClientInRoom = async (socket) => {
   const roomId = getRoomId(socket);
   const user = getUser(socket);
 
-  const room = await Rooms.findById(roomId);
-  const usersInRoom = room?.users || [];
-  if (!usersInRoom.some((u) => u == user?._id)) {
-    if (room) {
-      usersInRoom.push(user._id);
-      await Rooms.findOneAndUpdate({ _id: roomId }, { users: usersInRoom });
-    } else {
-      let users = [];
-      users.push(user._id);
-      Rooms.create({ _id: roomId, users });
-    }
-  }
+  await createOrAddUserInRoom(roomId, user?._id);
 
-  await User.findOneAndUpdate(
-    { _id: user._id },
-    { $push: { recentlyJoined: roomId } }
-  );
+  await addUserToRecentlyJoined(user._id, roomId);
+
   socket.join(roomId);
 
   socket.to(roomId).emit("connected", user);

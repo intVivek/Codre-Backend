@@ -1,5 +1,9 @@
-const Document = require("../Model/Document.js");
-const Rooms = require("../Model/Room.js");
+const { updateDocumentData } = require("../Services/documentServices.js");
+const {
+  updateRoomUsers,
+  getUsersInARoom,
+} = require("../Services/roomServices.js");
+const { excludeByValue } = require("../Util");
 
 module.exports = (roomId, user, io) => {
   function onTextChange(data) {
@@ -11,22 +15,19 @@ module.exports = (roomId, user, io) => {
     this.to(roomId).emit("selection", data);
   }
 
-  async function onDataRequestFromForeignClient({ socketId, data }){
-    this.emit("loadDoc", data);
+  async function onDataRequestFromForeignClient({ socketId, data }) {
     io.to(socketId).emit("loadDoc", data);
-    await Document.findByIdAndUpdate(roomId, { data });
+    await updateDocumentData(roomId, data);
   }
 
   async function onDisconnecting(reason) {
-    const users = (await Rooms.findById(roomId))?.users || [];
-    await Rooms.findByIdAndUpdate(roomId, {
-      users: users?.filter((u) => u != user._id),
-    });
+    const users = await getUsersInARoom(roomId);
+    await updateRoomUsers(roomId, excludeByValue(users, user._id));
     this.to(roomId).emit("exit", user._id);
   }
 
-  async function onSaveChanges(data){
-    await Document.findByIdAndUpdate(roomId, { data });
+  async function onSaveChanges(data) {
+    await updateDocumentData(roomId, data);
   }
 
   return {

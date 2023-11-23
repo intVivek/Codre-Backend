@@ -1,8 +1,8 @@
-const e = require('express');
+const express = require('express');
 
- const express = ({app}) => {
-  app.use(e.urlencoded({ extended: false }));
-  app.use(e.json());
+ const initialize = ({app}) => {
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
 
   app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", process.env.CLIENT_URL);
@@ -14,4 +14,4 @@ const e = require('express');
   app.set("trust proxy", 1);
 };
 
-module.exports = express;
+module.exports = initialize;

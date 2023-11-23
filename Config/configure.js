@@ -1,7 +1,7 @@
-const appConfig = (configs) => {
+const configureApp = (configs) => {
     return function(){
         configs.map(config=>config(this));
     }
 }
 
-module.exports = appConfig
+module.exports = configureApp

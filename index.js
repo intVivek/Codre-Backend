@@ -1,4 +1,4 @@
-const { initializeServer } = require("./server");
+const initializeServer = require("./server");
 require("dotenv").config();
 
 const { server } = initializeServer();

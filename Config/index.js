@@ -4,7 +4,7 @@ const express = require("./express.js");
 const session = require("./session.js");
 const socket = require("./socket.js");
 const router = require("./router.js");
-const appConfig = require("./configure.js");
+const configureApp = require("./configure.js");
 
 module.exports = {
   passport,
@@ -13,5 +13,6 @@ module.exports = {
   session,
   socket,
   router,
-  appConfig,
+  configureApp,
 };
+

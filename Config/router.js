@@ -6,7 +6,7 @@ const {
   logout,
   googleAuthenticate,
   googleAuthenticateCallback,
-} = require("../Routers");
+} = require("../Router");
 
 const router = ({app}) => {
   app.use(checkAuthentication);
