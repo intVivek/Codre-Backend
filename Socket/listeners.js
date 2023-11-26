@@ -1,9 +1,5 @@
 const { updateDocumentData } = require("../Services/documentServices.js");
-const {
-  updateRoomUsers,
-  getUsersInARoom,
-} = require("../Services/roomServices.js");
-const { excludeByValue } = require("../Util");
+const { removeSocketFromUser } = require("../Services/roomServices.js");
 
 module.exports = (roomId, user, io) => {
   function onTextChange(data) {
@@ -21,8 +17,10 @@ module.exports = (roomId, user, io) => {
   }
 
   async function onDisconnecting(reason) {
-    const users = await getUsersInARoom(roomId);
-    await updateRoomUsers(roomId, excludeByValue(users, user._id));
+    const socketId = this.id;
+    
+    await removeSocketFromUser(roomId, user._id, socketId);
+
     this.to(roomId).emit("exit", user._id);
   }
 

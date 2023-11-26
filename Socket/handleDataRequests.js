@@ -20,7 +20,7 @@ const handleDataRequests = async (socket, io) => {
 
   const users = await getUsersInARoom(roomId, {populateUser: true});
 
-  socket.emit("userdata", users);
+  socket.emit("userdata", users.map(u=>u.user));
 };
 
 module.exports = { handleDataRequests };

@@ -47,7 +47,7 @@ const getUsersInARoom = async (roomId, config) => {
   return (
     (
       await Room.findById(roomId).populate({
-        path: "users",
+        path: "users.user",
       })
     )?.users || []
   );
@@ -55,35 +55,80 @@ const getUsersInARoom = async (roomId, config) => {
 
 const geRoomById = async (roomId) => await Room.findById(roomId);
 
-const createOrAddUserInRoom = async (roomId, userId) => {
+const createOrAddUserInRoom = async (roomId, userId, socketId) => {
   const room = await geRoomById(roomId);
-
   const usersInRoom = room?.users || [];
 
-  if (usersInRoom.includes(userId)) return;
+  if (!room) {
+    const newRoom = new Room({
+      _id: roomId,
+      users: [{ user: userId, socketIds: [socketId] }],
+    });
+    return newRoom.save();
+  }
 
-  if (room)
+  if (!usersInRoom.map((u) => u.user).includes(userId)) {
     return Room.findOneAndUpdate(
-      { _id: roomId },
-      { $push: { users: userId } },
+      { user: roomId },
+      { $push: { users: { user: userId, socketIds: [socketId] } } }
+    );
+  }
+
+  return Room.findOneAndUpdate(
+    { user: roomId, "users.user": userId },
+    { $push: { "users.$.socketIds": socketId } }
+  );
+};
+
+async function removeSocketFromUser(roomId, userId, socketId) {
+  try {
+    let updatedRoom = await Room.findOneAndUpdate(
+      { user: roomId, "users.user": userId },
+      { $pull: { "users.$.socketIds": socketId } },
       { new: true }
     );
 
-  const newRoom = new Room({
-    _id: roomId,
-    users: [userId],
-  });
-  return newRoom.save();
+    const user = updatedRoom?.users?.find((u) => u?.user == userId);
+
+    if (user && user.socketIds.length === 0) {
+      updatedRoom = await Room.findOneAndUpdate(
+        { _id: roomId },
+        { $pull: { users: { user: userId } } },
+        { new: true }
+      );
+      if (updatedRoom?.users?.length === 0) {
+        await Room.findByIdAndDelete(roomId);
+      }
+    }
+  } catch (error) {
+    console.error("Error removing socket from user:", error);
+  }
+}
+
+const removeUserFromRoom = async (roomId, userId) => {
+  try {
+    const updatedRoom = await Room.findOneAndUpdate(
+      { _id: roomId },
+      { $pull: { users: { user: userId } } },
+      { new: true }
+    );
+    if (updatedRoom && updatedRoom.users.length === 0) {
+      await Room.findByIdAndDelete(roomId);
+    }
+  } catch (error) {
+    return error;
+  }
 };
 
-const updateRoomUsers = async (roomId, users) =>
-  await Room.findByIdAndUpdate(roomId, { users });
+const resetAllRooms = async () => await Room.deleteMany();
 
 module.exports = {
   checkIfRoomExists,
   createRoomWithUser,
   getUsersInARoom,
   createOrAddUserInRoom,
-  updateRoomUsers,
+  removeUserFromRoom,
+  removeSocketFromUser,
   geRoomById,
+  resetAllRooms,
 };

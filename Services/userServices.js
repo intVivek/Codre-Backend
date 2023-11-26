@@ -14,14 +14,18 @@ const getPopulatedUser = async (userId) => {
   ]);
 };
 
-const addUserToRecentlyJoined = async (userId, roomId) => {
+const assignSocketIdAndrecentlyJoinedToUser = async (userId, roomId, socketId) => {
     await User.findOneAndUpdate(
       { _id: userId },
-      { $push: { recentlyJoined: roomId } }
+      { $push: { recentlyJoined: roomId, sockets: socketId }, }
     );
   };
 
+  const getUserByid = async (userId) => await User.findById(userId);
+
+
 module.exports = {
+  getUserByid,
   getPopulatedUser,
-  addUserToRecentlyJoined,
+  assignSocketIdAndrecentlyJoinedToUser,
 };
