@@ -19,7 +19,7 @@ module.exports = (roomId, user, io) => {
   // Handles "dataRequestFromForeignClient" event
   async function onDataRequestFromForeignClient({ socketId, data }) {
     // Sends the requested document data to the specified client and updates the document in the database
-    io.to(socketId).emit("loadDoc", data);
+    io.to(socketId).emit("loadDocument", data);
     await updateDocumentData(roomId, data);
   }
 

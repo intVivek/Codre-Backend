@@ -30,7 +30,7 @@ const onConnection = (io) => async (socket) => {
   } = listeners(roomId, user, io);
 
   // Registers event listeners for the socket.
-  socket.on("clientRequestedData", onDataRequestFromForeignClient);
+  socket.on("dataRequestFromForeignClient", onDataRequestFromForeignClient);
   socket.on("selection", onSelectionChange);
   socket.on("textChange", onTextChange);
   socket.on("saveChangesOnClientLeft", onSaveChanges);

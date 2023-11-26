@@ -1,3 +1,5 @@
+const { v4: uuid } = require('uuid');
+
 /**
  * Function to generate a random UUID and extract a substring to create a random ID.
  * @param {number} start - The starting index for the substring (default: 10).
